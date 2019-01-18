@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+numpy = "==1.14.3"
+opencv-python = "==3.4.4.19"
+scipy = "==1.1.0"
+torch = "==1.0.0"
+easydict = "==1.9"
+torchvision = "==0.2.1"
+tqdm = "==4.28.1"
+pillow = "==5.3.0"
+scikit-learn = "==0.18.1"
+tensorboardx = "==1.5"
+
+[dev-packages]
+
+[requires]
+python_version = "2.7"

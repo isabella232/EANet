@@ -64,15 +64,15 @@ class ReIDTrainer(object):
         if args is None:
             args = parse_args()
         exp_dir = args.exp_dir
-        if exp_dir == 'None':
-            exp_dir = 'exp/' + osp.splitext(osp.basename(args.cfg_file))[0]
+        if exp_dir == "None":
+            exp_dir = "exp/" + osp.splitext(osp.basename(args.cfg_file))[0]
         # Copy the config file to exp_dir, and then overwrite any configurations provided in ow_file and ow_str
         cfg_file = osp.join(exp_dir, osp.basename(args.cfg_file))
         copy_to(args.cfg_file, cfg_file)
-        if args.ow_file != 'None':
+        if args.ow_file != "None":
             # print('ow_file is: {}'.format(args.ow_file))
             overwrite_cfg_file(cfg_file, ow_file=args.ow_file)
-        if args.ow_str != 'None':
+        if args.ow_str != "None":
             # print('ow_str is: {}'.format(args.ow_str))
             overwrite_cfg_file(cfg_file, ow_str=args.ow_str)
         self.cfg = import_file(cfg_file).cfg
@@ -84,18 +84,24 @@ class ReIDTrainer(object):
         cfg = self.cfg.log
         # Redirect logs to both console and file.
         time_str = t_str()
-        ReDirectSTD(osp.join(cfg.exp_dir, 'stdout_{}.txt'.format(time_str)), 'stdout', True)
-        ReDirectSTD(osp.join(cfg.exp_dir, 'stderr_{}.txt'.format(time_str)), 'stderr', True)
-        print('=> Experiment Output Directory: {}'.format(self.cfg.log.exp_dir))
+        ReDirectSTD(
+            osp.join(cfg.exp_dir, "stdout_{}.txt".format(time_str)), "stdout", True
+        )
+        ReDirectSTD(
+            osp.join(cfg.exp_dir, "stderr_{}.txt".format(time_str)), "stderr", True
+        )
+        print("=> Experiment Output Directory: {}".format(self.cfg.log.exp_dir))
         import torch
-        print('[PYTORCH VERSION]:', torch.__version__)
-        cfg.ckpt_file = osp.join(cfg.exp_dir, 'ckpt.pth')
+
+        print("[PYTORCH VERSION]:", torch.__version__)
+        cfg.ckpt_file = osp.join(cfg.exp_dir, "ckpt.pth")
         if cfg.use_tensorboard:
             from tensorboardX import SummaryWriter
-            self.tb_writer = SummaryWriter(log_dir=osp.join(cfg.exp_dir, 'tensorboard'))
+
+            self.tb_writer = SummaryWriter(log_dir=osp.join(cfg.exp_dir, "tensorboard"))
         else:
             self.tb_writer = None
-        cfg.score_file = osp.join(cfg.exp_dir, 'score_{}.txt'.format(time_str))
+        cfg.score_file = osp.join(cfg.exp_dir, "score_{}.txt".format(time_str))
 
     def init_device(self):
         self.device = get_default_device()
@@ -108,9 +114,20 @@ class ReIDTrainer(object):
         self.create_optimizer()
         self.create_lr_scheduler()
         self.create_loss_funcs()
-        self.trainer = Trainer(self.train_loader, self.train_forward, self.criterion, self.optimizer, self.lr_scheduler,
-                               steps_per_log=cfg.optim.steps_per_log, print_step_log=self.print_log)
-        self.ckpt_objects = {'model': self.model, 'optimizer': self.optimizer, 'lr_scheduler': self.lr_scheduler}
+        self.trainer = Trainer(
+            self.train_loader,
+            self.train_forward,
+            self.criterion,
+            self.optimizer,
+            self.lr_scheduler,
+            steps_per_log=cfg.optim.steps_per_log,
+            print_step_log=self.print_log,
+        )
+        self.ckpt_objects = {
+            "model": self.model,
+            "optimizer": self.optimizer,
+            "lr_scheduler": self.lr_scheduler,
+        }
         if cfg.optim.resume:
             self.resume()
 
@@ -129,11 +146,11 @@ class ReIDTrainer(object):
         cfg = self.cfg.log
         objects = {}
         if model:
-            objects['model'] = self.model
+            objects["model"] = self.model
         if optimizer:
-            objects['optimizer'] = self.optimizer
+            objects["optimizer"] = self.optimizer
         if lr_scheduler:
-            objects['lr_scheduler'] = self.lr_scheduler
+            objects["lr_scheduler"] = self.lr_scheduler
         load_ckpt(objects, cfg.ckpt_file, strict=False)
 
     def resume(self):
@@ -149,7 +166,7 @@ class ReIDTrainer(object):
         """Dynamically create any split of any dataset, with dynamic mode. E.g. you can even
         create a train split with eval mode, for extracting train set features."""
         cfg = self.cfg
-        assert mode in ['train', 'cd_train', 'test']
+        assert mode in ["train", "cd_train", "test"]
         transfer_items(getattr(cfg.dataset, mode), cfg.dataset)
         transfer_items(getattr(cfg.dataloader, mode), cfg.dataloader)
         if name is not None:
@@ -159,17 +176,25 @@ class ReIDTrainer(object):
         # NOTE: `transfer_items`, `cfg.dataset.name = name` etc change cfg in place.
         # Deepcopy prevents next call of `self.create_dataloader` from modifying the
         # cfg stored in the previous dataset.
-        dataloader = create_dataloader(deepcopy(cfg.dataloader), deepcopy(cfg.dataset), samples=samples)
+        dataloader = create_dataloader(
+            deepcopy(cfg.dataloader), deepcopy(cfg.dataset), samples=samples
+        )
         return dataloader
 
     def create_test_loaders(self):
         cfg = self.cfg
         self.test_loaders = OrderedDict()
         for i, name in enumerate(cfg.dataset.test.names):
-            q_split = cfg.dataset.test.query_splits[i] if hasattr(cfg.dataset.test, 'query_splits') else 'query'
+            q_split = (
+                cfg.dataset.test.query_splits[i]
+                if hasattr(cfg.dataset.test, "query_splits")
+                else "query"
+            )
             self.test_loaders[name] = {
-                'query': self.create_dataloader(mode='test', name=name, split=q_split),
-                'gallery': self.create_dataloader(mode='test', name=name, split='gallery')
+                "query": self.create_dataloader(mode="test", name=name, split=q_split),
+                "gallery": self.create_dataloader(
+                    mode="test", name=name, split="gallery"
+                ),
             }
 
     def test(self):
@@ -307,10 +332,21 @@ class ReIDTrainer(object):
         raise NotImplementedError
 
     def get_log(self):
-        time_log = 'Ep {}, Step {}, {:.2f}s'.format(self.trainer.current_ep + 1, self.trainer.current_step + 1, time.time() - self.ep_st)
-        lr_log = 'lr {}'.format(get_optim_lr_str(self.optimizer))
-        meter_log = join_str([m.avg_str for lf in self.loss_funcs.values() for m in lf.meter_dict.values()], ', ')
-        log = join_str([time_log, lr_log, meter_log], ', ')
+        time_log = "Ep {}, Step {}, {:.2f}s".format(
+            self.trainer.current_ep + 1,
+            self.trainer.current_step + 1,
+            time.time() - self.ep_st,
+        )
+        lr_log = "lr {}".format(get_optim_lr_str(self.optimizer))
+        meter_log = join_str(
+            [
+                m.avg_str
+                for lf in self.loss_funcs.values()
+                for m in lf.meter_dict.values()
+            ],
+            ", ",
+        )
+        log = join_str([time_log, lr_log, meter_log], ", ")
         return log
 
     def print_log(self):
@@ -318,17 +354,23 @@ class ReIDTrainer(object):
 
     def may_test(self):
         cfg = self.cfg.optim
-        score_str = ''
+        score_str = ""
         # You can force not testing by manually setting dont_test=True.
-        if not hasattr(cfg, 'dont_test') or not cfg.dont_test:
-            if (self.trainer.current_ep % cfg.epochs_per_val == 0) or (self.trainer.current_ep == cfg.epochs) or cfg.trial_run:
+        if not hasattr(cfg, "dont_test") or not cfg.dont_test:
+            if (
+                (self.trainer.current_ep % cfg.epochs_per_val == 0)
+                or (self.trainer.current_ep == cfg.epochs)
+                or cfg.trial_run
+            ):
                 score_str = self.test()
         return score_str
 
     def may_save_ckpt(self, score_str):
         cfg = self.cfg
         if not cfg.optim.trial_run:
-            save_ckpt(self.ckpt_objects, self.trainer.current_ep, score_str, cfg.log.ckpt_file)
+            save_ckpt(
+                self.ckpt_objects, self.trainer.current_ep, score_str, cfg.log.ckpt_file
+            )
 
     def train(self):
         cfg = self.cfg.optim
