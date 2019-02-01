@@ -77,7 +77,8 @@ def load_state_dict(model, src_state_dict, fold_bnt=True):
         try:
             dest_state_dict[name].copy_(param)
         except Exception as msg:
-            print("Warning: Error occurs when copying '{}': {}".format(name, str(msg)))
+            # print("Warning: Error occurs when copying '{}': {}".format(name, str(msg)))
+            pass
 
     # New version of BN has buffer `num_batches_tracked`, which is not used
     # for normal BN, so we fold all these missing keys into one line
@@ -89,19 +90,21 @@ def load_state_dict(model, src_state_dict, fold_bnt=True):
 
     src_missing = set(dest_state_dict.keys()) - set(src_state_dict.keys())
     if len(src_missing) > 0:
-        print("Keys not found in source state_dict: ")
+        # print("Keys not found in source state_dict: ")
         if fold_bnt:
             src_missing = _fold_nbt(src_missing)
         for n in src_missing:
-            print('\t', n)
+            # print('\t', n)
+            pass
 
     dest_missing = set(src_state_dict.keys()) - set(dest_state_dict.keys())
     if len(dest_missing) > 0:
-        print("Keys not found in destination state_dict: ")
+        # print("Keys not found in destination state_dict: ")
         if fold_bnt:
             dest_missing = _fold_nbt(dest_missing)
         for n in dest_missing:
-            print('\t', n)
+            # print('\t', n)
+            pass
 
 
 def load_ckpt(objects, ckpt_file, strict=True):
@@ -126,7 +129,7 @@ def load_ckpt(objects, ckpt_file, strict=True):
                 load_state_dict(obj, ckpt['state_dicts'][name])
     objects_str = ', '.join(objects.keys())
     msg = '=> Loaded [{}] from {}, epoch {}, score:\n{}'.format(objects_str, ckpt_file, ckpt['epoch'], ckpt['score'])
-    print(msg)
+    # print(msg)
     return ckpt['epoch'], ckpt['score']
 
 
