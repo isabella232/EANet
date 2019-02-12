@@ -120,6 +120,7 @@ def load_ckpt(objects, ckpt_file, strict=True):
     assert osp.exists(ckpt_file), "ckpt_file {} does not exist!".format(ckpt_file)
     assert osp.isfile(ckpt_file), "ckpt_file {} is not file!".format(ckpt_file)
     ckpt = torch.load(ckpt_file, map_location=(lambda storage, loc: storage))
+    # import ipdb; ipdb.set_trace()
     for name, obj in objects.items():
         if obj is not None:
             # Only nn.Module.load_state_dict has this keyword argument

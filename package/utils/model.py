@@ -11,7 +11,7 @@ def init_classifier(m):
 def create_embedding(in_dim=None, out_dim=None):
     layers = [
         nn.Linear(in_dim, out_dim),
-        nn.BatchNorm1d(out_dim),
-        nn.ReLU(inplace=True)
+        # nn.BatchNorm1d(out_dim),
+        # nn.ReLU(inplace=True)
     ]
     return nn.Sequential(*layers)

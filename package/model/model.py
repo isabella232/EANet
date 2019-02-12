@@ -95,12 +95,19 @@ class Model(BaseModel):
         # print('=====> in_dict.keys() entering reid_forward():', in_dict.keys())
         pool_out_dict = self.pool(in_dict)
         feat_list = [em(f) for em, f in zip(self.em_list, pool_out_dict["feat_list"])]
+        # print('model output feats: ')
+        # [print(f.mean()) for f in pool_out_dict["feat_list"]]
+        # print()
+        # print('model output embs: ')
+        # [print(f.mean()) for f in feat_list]
+        # import ipdb; ipdb.set_trace()
         out_dict = {"feat_list": feat_list}
         if hasattr(self, "cls_list"):
             logits_list = [cls(f) for cls, f in zip(self.cls_list, feat_list)]
             out_dict["logits_list"] = logits_list
         if "visible" in pool_out_dict:
             out_dict["visible"] = pool_out_dict["visible"]
+        # import ipdb; ipdb.set_trace()
         return out_dict
 
     def ps_forward(self, in_dict):
@@ -108,6 +115,7 @@ class Model(BaseModel):
 
     def forward(self, in_dict, forward_type="reid"):
         in_dict["feat"] = self.backbone_forward(in_dict)
+        # print('model.forward.backbone: ' + str(in_dict["feat"].mean()))
         if forward_type == "reid":
             out_dict = self.reid_forward(in_dict)
         elif forward_type == "ps":

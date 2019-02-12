@@ -229,12 +229,13 @@ class ReIDTrainer(object):
         if im is None:
             dic['im'] = Image.open(im_path).convert("RGB")
         else:
-            assert F._is_pil_image(im), "Image should be PIL Image. Got {}".format(type(im))
-            assert len(im.size) == 3, "Image should be 3-dimensional. Got size {}".format(im.size)
-            assert im.size[2] == 3, "Image should be transformed to have 3 channels. Got size {}".format(im.size)
+            # assert F._is_pil_image(im), "Image should be PIL Image. Got {}".format(type(im))
+            # assert len(im.size) == 3, "Image should be 3-dimensional. Got size {}".format(im.size)
+            # assert im.size[2] == 3, "Image should be transformed to have 3 channels. Got size {}".format(im.size)
             dic['im'] = im
         if pap_mask is not None:
             dic['pap_mask'] = pap_mask
+        # import ipdb; ipdb.set_trace()
         transform(dic, cfg.dataset)
 
         # Add the batch dimension

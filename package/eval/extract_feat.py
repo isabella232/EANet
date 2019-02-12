@@ -10,10 +10,14 @@ def extract_batch_feat(model, in_dict, cfg):
     model.eval()
     with torch.no_grad():
         in_dict = recursive_to_device(in_dict, cfg.device)
+        # print('in_dict: ' + str(in_dict['im'].mean()))
+        # import ipdb; ipdb.set_trace()
         out_dict = model(in_dict, forward_type=cfg.forward_type)
+        # import ipdb; ipdb.set_trace()
         out_dict['feat_list'] = [normalize(f) for f in out_dict['feat_list']]
         feat = torch.cat(out_dict['feat_list'], 1)
         feat = feat.cpu().numpy()
+        # print('feat: ' + str(feat.mean()))
         ret_dict = {
             'im_path': in_dict['im_path'],
             'feat': feat,

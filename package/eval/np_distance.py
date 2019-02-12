@@ -44,6 +44,7 @@ def compute_dist(array1, array2, dist_type='cosine', cos_to_normalize=True):
         np.sqrt(dist, out=dist)
     else:
         raise NotImplementedError
+    # import ipdb; ipdb.set_trace()
     return dist
 
 

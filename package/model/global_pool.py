@@ -9,4 +9,8 @@ class GlobalPool(object):
         feat = self.pool(in_dict['feat'])
         feat = feat.view(feat.size(0), -1)
         out_dict = {'feat_list': [feat]}
+        print(in_dict['feat'].shape)
+        print(in_dict['feat'].mean())
+        print(feat.shape)
+        print(feat.mean())
         return out_dict
