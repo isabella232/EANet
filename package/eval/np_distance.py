@@ -48,7 +48,7 @@ def compute_dist(array1, array2, dist_type='cosine', cos_to_normalize=True):
     return dist
 
 
-def compute_dist_with_visibility(array1, array2, vis1, vis2, dist_type='cosine', avg_by_vis_num=True):
+def compute_dist_with_visibility(array1, array2, vis1, vis2, dist_type='cosine', avg_by_vis_num=True, debug=False):
     """Compute the euclidean or cosine distance of all pairs, considering part visibility.
     In this version, if a query image does not has some part, don't calculate distance for this part.
     If a query has one part that gallery does not have, we can optionally set the part distance to some
@@ -78,16 +78,40 @@ def compute_dist_with_visibility(array1, array2, vis1, vis2, dist_type='cosine',
 
     array1 = array1.reshape([m1, p, d])
     array2 = array2.reshape([m2, p, d])
-    dist = 0
+    dist = 0  # Will actually be a numpy ndarray
+    vis = 0  # Will actually be a numpy ndarray
+
+    # try:
+    #     vis1 = vis1 * vis2
+    # except:
+    #     import ipdb; ipdb.set_trace()
+    #     pass
+
+    # if array1.shape[0] > 1:
+    #     import ipdb; ipdb.set_trace()
+
     for i in range(p):
         # [m1, m2]
         dist_ = compute_dist(array1[:, i, :], array2[:, i, :], dist_type=dist_type)
-        q_invisible = vis1[:, i][:, np.newaxis].repeat(m2, 1) == 0
-        dist_[q_invisible] = 0
+        # q_invisible = vis1[:, i][:, np.newaxis].repeat(m2, 1) == 0
+        q_invisible = np.matmul(
+            vis1[:, i][:, np.newaxis],
+            vis2[np.newaxis, :, i],
+        )
+
+        dist_[q_invisible == 0] = 0
         dist += dist_
+        vis += q_invisible
+        if debug:
+            print()
+            print(dist_)
+            import ipdb
+            ipdb.set_trace()
     if avg_by_vis_num:
-        dist /= (np.sum(vis1, axis=1, keepdims=True) + 1e-8)
+        dist /= (vis + 1e-8)
     if dist_type == 'cosine':
         # Turn distance into positive value
         dist += 1
+    # Insert average non-match dist if have low visibility
+    dist[vis < 3] = 1.7
     return dist

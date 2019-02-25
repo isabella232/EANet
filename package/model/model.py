@@ -107,7 +107,6 @@ class Model(BaseModel):
             out_dict["logits_list"] = logits_list
         if "visible" in pool_out_dict:
             out_dict["visible"] = pool_out_dict["visible"]
-        # import ipdb; ipdb.set_trace()
         return out_dict
 
     def ps_forward(self, in_dict):

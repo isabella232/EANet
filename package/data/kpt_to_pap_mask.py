@@ -94,9 +94,12 @@ def gen_pap_masks(im_h_w, h_w, kpts, mask_type='PAP_9P'):
     # Here LOWER_LEG is without shoes
     def _gen_LOWER_LEG_mask():
         if knee_v and ankle_v:
-            return _gen_mask(knee_y, ankle_y, True, part_name='LOWER_LEG')
+            return _gen_mask(knee_y, ankle_y, False, part_name='LOWER_LEG')
         elif knee_v:
-            return _gen_mask(knee_y, min(H, knee_y + int(np.ceil(H * 0.25))), True, part_name='LOWER_LEG')
+            return _gen_mask(
+                knee_y, min(H, knee_y + int(np.ceil(H * 0.25))),
+                False, part_name='LOWER_LEG'
+            )
         else:
             return _gen_mask(0, H, False, part_name='LOWER_LEG')
 
@@ -118,7 +121,7 @@ def gen_pap_masks(im_h_w, h_w, kpts, mask_type='PAP_9P'):
         shoes_mask = np.logical_or(left_shoes_mask, right_shoes_mask).astype(np.float32)
         masks.append(shoes_mask)
         visible.append(ankle_v)
-        return shoes_mask, ankle_v
+        return shoes_mask, False
 
     def _gen_UPPER_HALF_mask():
         return _gen_mask(0, hip_y, hip_v, part_name='UPPER_HALF')

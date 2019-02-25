@@ -55,6 +55,8 @@ def pa_max_pool(in_dict):
     # [N, pC]
     visible = (mask.sum(-1).sum(-1) != 0).float()
     out_dict = {'feat_list': feat_list, 'visible': visible}
+    # for m in mask[0]: print(m)
+    # import ipdb; ipdb.set_trace()
     return out_dict
 
 
